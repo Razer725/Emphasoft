@@ -38,26 +38,23 @@ class UserBase(BaseModel):
 
 
 class UserIn(UserBase):
+    is_superuser: bool
     password: str
-    last_login: datetime
-
-
-class UserPatch(UserBase):
-    password: Optional[str]
-    last_login: Optional[datetime]
-    is_superuser: Optional[bool]
 
 
 class UserOut(UserBase):
     is_active: bool
-    last_login: datetime
     is_superuser: bool
 
 
 class UserInDB(UserBase):
     is_superuser: bool = False
-    last_login: Optional[datetime]
     hashed_password: str
+
+
+class UserPatch(UserBase):
+    hashed_password: Optional[str]
+    is_superuser: Optional[bool]
 
 
 def verify_password(plain_password, hashed_password):
@@ -70,7 +67,6 @@ def get_password_hash(password):
 
 def get_user(username: str):
     user = collection.find_one({'username': username})
-    print(user, 'user')
     if user:
         return UserInDB(**user)
 
@@ -91,7 +87,6 @@ def user_helper(user) -> dict:
         "first_name": user["first_name"],
         "last_name": user["last_name"],
         "is_active": user["is_active"],
-        "last_login": user["last_login"],
         "is_superuser": user["is_superuser"],
     }
 
@@ -127,12 +122,12 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 
-def create_user(data) -> UserInDB:
+def create_user(data) -> dict:
     data['hashed_password'] = get_password_hash(data['password'])
     data.pop('password')
     user = collection.insert_one(data)
     new_user = collection.find_one({'_id': user.inserted_id})
-    return json_util.dumps(new_user)
+    return user_helper(new_user)
 
 
 def get_users():

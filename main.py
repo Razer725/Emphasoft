@@ -56,25 +56,23 @@ async def read_users_me(current_user: UserOut = Depends(get_current_user)):
 
 @app.post("/create", response_model=UserOut)
 def create_user_data(user: UserIn):
-    print(user, 'before')
     user = jsonable_encoder(user)
-    print(user, 'after')
     new_user = create_user(user)
-    return Response(content=new_user, media_type="application/json")
+    return new_user
 
 
-@app.get("/users/{id}", response_description='User data retrieved')
-def user_read(id: str):
-    user = get_user_data(id)
+@app.get("/users/{_id}", response_description='User data retrieved')
+def user_read(_id: str):
+    user = get_user_data(_id)
     return user
 
 
-@app.put("/users/{id}", response_description='User data updated')
-def user_update(id: str, user: UserIn):
+@app.put("/users/{_id}", response_description='User data updated')
+def user_update(_id: str, user: UserIn):
     user = {k: v for k, v in user.dict().items() if v is not None}  # <class 'models.UserIn'> -> <class 'dict'>
-    updated_user = update_user_data(id, user)
+    updated_user = update_user_data(_id, user)
     if updated_user:
-        return response_model("User with ID: {} updated successfully".format(id),
+        return response_model("User with ID: {} updated successfully".format(_id),
                               "User updated successfully",
                               )
     return error_response_model(
@@ -84,12 +82,12 @@ def user_update(id: str, user: UserIn):
     )
 
 
-@app.patch("/users/{id}", response_description='User data partially updated')
-def user_partial_update(id: str, user: UserPatch):
+@app.patch("/users/{_id}", response_description='User data partially updated')
+def user_partial_update(_id: str, user: UserPatch):
     user = {k: v for k, v in user.dict().items() if v is not None}  # <class 'models.UserIn'> -> <class 'dict'>
-    updated_user = update_user_data(id, user)
+    updated_user = update_user_data(_id, user)
     if updated_user:
-        return response_model("User with ID: {} updated successfully".format(id),
+        return response_model("User with ID: {} updated successfully".format(_id),
                               "User updated successfully",
                               )
     return error_response_model(
@@ -99,17 +97,17 @@ def user_partial_update(id: str, user: UserPatch):
     )
 
 
-@app.delete("/users/{id}", response_description='User data deleted')
-def user_delete(id: str):
-    deleted_user = delete_user_data(id)
+@app.delete("/users/{_id}", response_description='User data deleted')
+def user_delete(_id: str):
+    deleted_user = delete_user_data(_id)
     if deleted_user:
-        return response_model("User with ID: {} deleted successfully".format(id),
+        return response_model("User with ID: {} deleted successfully".format(_id),
                               "User deleted successfully",
                               )
     return error_response_model(
         "An error occurred",
         404,
-        "Student doesn't exist",
+        "User doesn't exist",
     )
 
 
