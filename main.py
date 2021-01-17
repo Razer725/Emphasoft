@@ -54,7 +54,7 @@ async def read_users_me(current_user: UserOut = Depends(get_current_user)):
     return current_user
 
 
-@app.post("/create", response_model=UserOut)
+@app.post("/create")
 def create_user_data(user: UserIn):
     user = jsonable_encoder(user)
     new_user = create_user(user)

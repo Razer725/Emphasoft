@@ -53,7 +53,7 @@ class UserInDB(UserBase):
 
 
 class UserPatch(UserBase):
-    hashed_password: Optional[str]
+    password: Optional[str]
     is_superuser: Optional[bool]
 
 
@@ -127,6 +127,7 @@ def create_user(data) -> dict:
     data.pop('password')
     user = collection.insert_one(data)
     new_user = collection.find_one({'_id': user.inserted_id})
+    print(new_user['_id'])
     return user_helper(new_user)
 
 
